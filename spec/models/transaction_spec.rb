@@ -14,4 +14,14 @@ RSpec.describe Transaction, type: :model do
     it { should validate_presence_of(:date) }
     it { should validate_presence_of(:card_number) }
   end
+
+  describe 'enum' do
+    it do
+      should define_enum_for(:recommendation)
+        .with_values(
+          approve: 'approve',
+          deny: 'deny'
+        ).backed_by_column_of_type(:string)
+    end
+  end
 end
