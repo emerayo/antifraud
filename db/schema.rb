@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_01_24_215107) do
+ActiveRecord::Schema[7.0].define(version: 2024_01_25_012451) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -29,14 +29,15 @@ ActiveRecord::Schema[7.0].define(version: 2024_01_24_215107) do
   end
 
   create_table "transactions", force: :cascade do |t|
-    t.bigint "device_id"
-    t.bigint "merchant_id"
-    t.bigint "user_id"
-    t.string "card_number"
-    t.datetime "date"
-    t.float "amount"
+    t.bigint "device_id", null: false
+    t.bigint "merchant_id", null: false
+    t.bigint "user_id", null: false
+    t.string "card_number", null: false
+    t.datetime "date", null: false
+    t.float "amount", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "has_cbk", default: false, null: false
     t.index ["device_id"], name: "index_transactions_on_device_id"
     t.index ["merchant_id"], name: "index_transactions_on_merchant_id"
     t.index ["user_id"], name: "index_transactions_on_user_id"

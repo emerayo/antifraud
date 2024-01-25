@@ -19,18 +19,6 @@ RSpec.describe '/api/v1/transactions', type: :request do
     }
   end
 
-  let(:invalid_attributes) do
-    {
-      id: 21_320_398,
-      merchant_id: 0,
-      user_id: user_id,
-      card_number: '434505******9116',
-      date: '2019-12-01T23:16:32.812632',
-      amount: 374.56,
-      device_id: device_id
-    }
-  end
-
   let(:json_response) { response.parsed_body }
 
   describe 'GET /show' do
@@ -82,10 +70,68 @@ RSpec.describe '/api/v1/transactions', type: :request do
     end
 
     context 'with invalid parameters' do
-      it 'does not create a new Transaction and renders a response with 422 status' do
-        expect { post api_v1_transactions_path, params: { transaction: invalid_attributes } }
-          .to change(Transaction, :count).by(0)
-        expect(response).to have_http_status(:unprocessable_entity)
+      context 'without device on the database' do
+        let!(:merchant) { Merchant.create(id: merchant_id) }
+        let!(:user) { User.create(id: user_id) }
+
+        it 'does not create a new Transaction and renders a response with 422 status' do
+          expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
+            .to change(Transaction, :count).by(0)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(json_response['errors']).to eq({ 'device' => ['must exist'] })
+        end
+      end
+
+      context 'without merchant on the database' do
+        let!(:device) { Device.create(id: device_id) }
+        let!(:user) { User.create(id: user_id) }
+
+        it 'does not create a new Transaction and renders a response with 422 status' do
+          expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
+            .to change(Transaction, :count).by(0)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(json_response['errors']).to eq({ 'merchant' => ['must exist'] })
+        end
+      end
+
+      context 'without user on the database' do
+        let!(:device) { Device.create(id: device_id) }
+        let!(:merchant) { Merchant.create(id: merchant_id) }
+
+        it 'does not create a new Transaction and renders a response with 422 status' do
+          expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
+            .to change(Transaction, :count).by(0)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(json_response['errors']).to eq({ 'user' => ['must exist'] })
+        end
+      end
+
+      context 'with invalid amount' do
+        let!(:device) { Device.create(id: device_id) }
+        let!(:merchant) { Merchant.create(id: merchant_id) }
+        let!(:user) { User.create(id: user_id) }
+
+        context 'with negative amount' do
+          it 'does not create a new Transaction and renders a response with 422 status' do
+            valid_attributes[:amount] = -1
+
+            expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
+              .to change(Transaction, :count).by(0)
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(json_response['errors']).to eq({ 'amount' => ['must be greater than 0'] })
+          end
+        end
+
+        context 'with zero amount' do
+          it 'does not create a new Transaction and renders a response with 422 status' do
+            valid_attributes[:amount] = 0
+
+            expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
+              .to change(Transaction, :count).by(0)
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(json_response['errors']).to eq({ 'amount' => ['must be greater than 0'] })
+          end
+        end
       end
     end
   end
