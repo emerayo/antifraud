@@ -135,4 +135,33 @@ RSpec.describe '/api/v1/transactions', type: :request do
       end
     end
   end
+
+  describe 'PATCH /chargeback' do
+    context 'when the Transaction exists' do
+      let!(:device) { Device.create(id: device_id) }
+      let!(:merchant) { Merchant.create(id: merchant_id) }
+      let!(:user) { User.create(id: user_id) }
+      let!(:transaction) { Transaction.create! valid_attributes }
+
+      it 'updates the has_cbk field and returns the Transaction and status 200' do
+        expect(transaction.has_cbk).to eq false
+
+        patch chargeback_api_v1_transaction_path(transaction)
+
+        expect(transaction.reload.has_cbk).to eq true
+        expect(json_response['id']).to eq transaction.id
+        expect(json_response['has_cbk']).to eq true
+        expect(response.status).to eq 200
+      end
+    end
+
+    context 'when the Transaction does not exist' do
+      it 'returns 404' do
+        patch chargeback_api_v1_transaction_path(1)
+
+        expect(json_response).to eq({ 'error' => 'not-found' })
+        expect(response.status).to eq 404
+      end
+    end
+  end
 end
