@@ -3,7 +3,7 @@
 module Api
   module V1
     class TransactionsController < ApplicationController
-      before_action :find_transaction, only: :show
+      before_action :find_transaction, only: %i[show chargeback]
 
       # GET /transactions/:id
       def show
@@ -16,6 +16,17 @@ module Api
 
         if @transaction.save
           render json: @transaction, status: :created
+        else
+          render json: { errors: @transaction.errors }, status: :unprocessable_entity
+        end
+      end
+
+      # POST /transactions/:id/chargeback
+      def chargeback
+        @transaction.has_cbk = true
+
+        if @transaction.save
+          render json: @transaction
         else
           render json: { errors: @transaction.errors }, status: :unprocessable_entity
         end

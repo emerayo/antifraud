@@ -8,7 +8,9 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :transactions, only: %i[create show]
+      resources :transactions, only: %i[create show] do
+        patch 'chargeback', on: :member
+      end
     end
   end
 end
