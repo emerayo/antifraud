@@ -21,7 +21,7 @@ module Api
         end
       end
 
-      # POST /transactions/:id/chargeback
+      # PATCH /transactions/:id/chargeback
       def chargeback
         @transaction.has_cbk = true
 
