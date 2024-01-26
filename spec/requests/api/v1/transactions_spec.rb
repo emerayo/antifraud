@@ -143,15 +143,29 @@ RSpec.describe '/api/v1/transactions', type: :request do
       let!(:user) { User.create(id: user_id) }
       let!(:transaction) { Transaction.create! valid_attributes }
 
-      it 'updates the has_cbk field and returns the Transaction and status 200' do
-        expect(transaction.has_cbk).to eq false
+      context 'when the Transaction is valid' do
+        it 'updates the has_cbk field and returns the Transaction and status 200' do
+          expect(transaction.has_cbk).to eq false
 
-        patch chargeback_api_v1_transaction_path(transaction)
+          patch chargeback_api_v1_transaction_path(transaction)
 
-        expect(transaction.reload.has_cbk).to eq true
-        expect(json_response['id']).to eq transaction.id
-        expect(json_response['has_cbk']).to eq true
-        expect(response.status).to eq 200
+          expect(transaction.reload.has_cbk).to eq true
+          expect(json_response['id']).to eq transaction.id
+          expect(json_response['has_cbk']).to eq true
+          expect(response.status).to eq 200
+        end
+      end
+
+      context 'when the Transaction is not valid anymore' do
+        it 'returns 422' do
+          transaction.amount = 0
+          transaction.save(validate: false)
+
+          patch chargeback_api_v1_transaction_path(transaction)
+
+          expect(json_response).to eq({ 'errors' => { 'amount' => ['must be greater than 0'] } })
+          expect(response.status).to eq 422
+        end
       end
     end
 
