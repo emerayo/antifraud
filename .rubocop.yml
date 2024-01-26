@@ -24,3 +24,8 @@ Metrics/BlockLength:
   Enabled: true
   Exclude:
    - 'spec/**/*'
+
+Rails/Output:
+  Enabled: true
+  Exclude:
+    - 'db/seeds.rb'
