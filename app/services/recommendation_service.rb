@@ -8,9 +8,8 @@ class RecommendationService
     @transaction = transaction
   end
 
-  def run
-    @transaction.recommendation = validate_recommendation ? APPROVE : DENY
-    @transaction
+  def recommend
+    validate_recommendation ? APPROVE : DENY
   end
 
   private
