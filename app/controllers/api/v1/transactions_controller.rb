@@ -13,15 +13,16 @@ module Api
       # POST /transactions
       def create
         @transaction = Transaction.new(transaction_params)
+        @transaction.recommendation = RecommendationService.new(transaction: @transaction).recommend
 
         if @transaction.save
-          render json: @transaction, status: :created
+          render json: @transaction.to_json(only: %i[id recommendation]), status: :created
         else
           render json: { errors: @transaction.errors }, status: :unprocessable_entity
         end
       end
 
-      # POST /transactions/:id/chargeback
+      # PATCH /transactions/:id/chargeback
       def chargeback
         @transaction.has_cbk = true
 

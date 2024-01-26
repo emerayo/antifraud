@@ -28,9 +28,9 @@ RSpec.describe RecommendationService do
   context 'with valid previous transactions' do
     context 'when there is no other transaction' do
       it 'approves the transaction' do
-        transaction = subject.run
+        recommendation = subject.recommend
 
-        expect(transaction.recommendation).to eq 'approve'
+        expect(recommendation).to eq 'approve'
       end
     end
 
@@ -48,9 +48,9 @@ RSpec.describe RecommendationService do
           end
 
           it 'approves the transaction' do
-            transaction = subject.run
+            recommendation = subject.recommend
 
-            expect(transaction.recommendation).to eq 'approve'
+            expect(recommendation).to eq 'approve'
           end
         end
 
@@ -66,9 +66,9 @@ RSpec.describe RecommendationService do
           end
 
           it 'approves the transaction' do
-            transaction = subject.run
+            recommendation = subject.recommend
 
-            expect(transaction.recommendation).to eq 'approve'
+            expect(recommendation).to eq 'approve'
           end
         end
 
@@ -86,9 +86,9 @@ RSpec.describe RecommendationService do
           end
 
           it 'approves the transaction' do
-            transaction = subject.run
+            recommendation = subject.recommend
 
-            expect(transaction.recommendation).to eq 'approve'
+            expect(recommendation).to eq 'approve'
           end
         end
 
@@ -106,9 +106,9 @@ RSpec.describe RecommendationService do
           end
 
           it 'approves the transaction' do
-            transaction = subject.run
+            recommendation = subject.recommend
 
-            expect(transaction.recommendation).to eq 'approve'
+            expect(recommendation).to eq 'approve'
           end
         end
       end
@@ -125,9 +125,9 @@ RSpec.describe RecommendationService do
         end
 
         it 'approves the transaction' do
-          transaction = subject.run
+          recommendation = subject.recommend
 
-          expect(transaction.recommendation).to eq 'approve'
+          expect(recommendation).to eq 'approve'
         end
       end
     end
@@ -143,9 +143,9 @@ RSpec.describe RecommendationService do
         it 'denies the transaction' do
           Transaction.create!(valid_attributes)
 
-          transaction = subject.run
+          recommendation = subject.recommend
 
-          expect(transaction.recommendation).to eq 'deny'
+          expect(recommendation).to eq 'deny'
         end
       end
 
@@ -161,9 +161,9 @@ RSpec.describe RecommendationService do
         end
 
         it 'denies the transaction' do
-          transaction = subject.run
+          recommendation = subject.recommend
 
-          expect(transaction.recommendation).to eq 'deny'
+          expect(recommendation).to eq 'deny'
         end
       end
 
@@ -187,9 +187,9 @@ RSpec.describe RecommendationService do
         end
 
         it 'denies the transaction' do
-          transaction = subject.run
+          recommendation = subject.recommend
 
-          expect(transaction.recommendation).to eq 'deny'
+          expect(recommendation).to eq 'deny'
         end
       end
 
@@ -217,9 +217,9 @@ RSpec.describe RecommendationService do
         end
 
         it 'denies the transaction' do
-          transaction = subject.run
+          recommendation = subject.recommend
 
-          expect(transaction.recommendation).to eq 'deny'
+          expect(recommendation).to eq 'deny'
         end
       end
     end
@@ -230,9 +230,9 @@ RSpec.describe RecommendationService do
       end
 
       it 'denies the transaction' do
-        transaction = subject.run
+        recommendation = subject.recommend
 
-        expect(transaction.recommendation).to eq 'deny'
+        expect(recommendation).to eq 'deny'
       end
     end
 
@@ -242,9 +242,9 @@ RSpec.describe RecommendationService do
       end
 
       it 'denies the transaction' do
-        transaction = subject.run
+        recommendation = subject.recommend
 
-        expect(transaction.recommendation).to eq 'deny'
+        expect(recommendation).to eq 'deny'
       end
     end
 
@@ -260,9 +260,9 @@ RSpec.describe RecommendationService do
       end
 
       it 'denies the transaction' do
-        transaction = subject.run
+        recommendation = subject.recommend
 
-        expect(transaction.recommendation).to eq 'deny'
+        expect(recommendation).to eq 'deny'
       end
     end
   end

@@ -4,18 +4,12 @@ class RecommendationService
   APPROVE = 'approve'
   DENY = 'deny'
 
-  ONE_HOUR_MAX_LIMIT = 1_000
-  FIVE_HOUR_MAX_LIMIT = 5_000
-  MAX_DEVICES_IN_ONE_HOUR = 2
-  MAX_TRANSACTIONS_SAME_DEVICE = 2
-
   def initialize(transaction:)
     @transaction = transaction
   end
 
-  def run
-    @transaction.recommendation = validate_recommendation ? APPROVE : DENY
-    @transaction
+  def recommend
+    validate_recommendation ? APPROVE : DENY
   end
 
   private
