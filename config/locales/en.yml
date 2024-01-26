@@ -31,3 +31,18 @@
 
 en:
   hello: "Hello world"
+
+en:
+  activemodel:
+    errors:
+      models:
+        recommendation:
+          attributes:
+            base:
+              same_amount_last_hour: There is another transaction with same amount in the last hour
+              previous_chargeback: There is another transaction with chargeback for the User
+              previous_denied: There is another transaction denied for the User in the last hour
+              five_hours_limit: The transaction is over the User's five hour limit amount
+              one_hour_limit: The transaction is over the User's one hour limit amount
+              same_device_multiple_times: The User did too many transactions on this device in the last hour
+              too_many_devices: The User did too many transactions on multiple devices in the last hour
