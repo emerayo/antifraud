@@ -6,7 +6,7 @@ class Transaction < ApplicationRecord
     'deny' => 'deny'
   }
 
-  belongs_to :device
+  belongs_to :device, optional: true
   belongs_to :merchant
   belongs_to :user
 
