@@ -67,21 +67,27 @@ RSpec.describe '/api/v1/transactions', type: :request do
         expect(json_response['amount']).to eq valid_attributes[:amount]
         expect(response.status).to eq 201
       end
-    end
 
-    context 'with invalid parameters' do
       context 'without device on the database' do
         let!(:merchant) { Merchant.create(id: merchant_id) }
         let!(:user) { User.create(id: user_id) }
 
         it 'does not create a new Transaction and renders a response with 422 status' do
-          expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
-            .to change(Transaction, :count).by(0)
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(json_response['errors']).to eq({ 'device' => ['must exist'] })
+          expect do
+            params = valid_attributes.merge(device_id: nil)
+            post api_v1_transactions_path, params: { transaction: params }
+          end.to change(Transaction, :count).by(1)
+          expect(response.status).to eq 201
+          expect(json_response['id']).to eq valid_attributes[:id]
+          expect(json_response['device_id']).to eq nil
+          expect(json_response['merchant_id']).to eq merchant_id
+          expect(json_response['user_id']).to eq user_id
+          expect(json_response['amount']).to eq valid_attributes[:amount]
         end
       end
+    end
 
+    context 'with invalid parameters' do
       context 'without merchant on the database' do
         let!(:device) { Device.create(id: device_id) }
         let!(:user) { User.create(id: user_id) }
