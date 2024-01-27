@@ -11,13 +11,15 @@ RSpec.describe Recommendation do
   let!(:merchant) { Merchant.create(id: merchant_id) }
   let!(:user) { User.create(id: user_id) }
 
+  let(:date) { DateTime.parse('2024-01-25 18:03:28.604436') }
+
   let(:valid_attributes) do
     {
       id: 21_320_398,
       merchant_id: merchant_id,
       user_id: user_id,
       card_number: '434505******9116',
-      date: 1.hour.ago,
+      date: date.to_s,
       amount: 374.56,
       device_id: device_id
     }
@@ -33,7 +35,7 @@ RSpec.describe Recommendation do
                         chargeback: chargeback)
   end
 
-  context 'with valid previous transactions' do
+  context 'when transaction should be approved' do
     let(:chargeback) { false }
     let(:transactions) { all_transactions }
 
@@ -53,7 +55,7 @@ RSpec.describe Recommendation do
                                   merchant_id: merchant_id,
                                   user_id: user_id,
                                   card_number: '434505******9116',
-                                  date: 10.minutes.ago,
+                                  date: date - 10.minutes,
                                   amount: 200.56,
                                   device_id: device_id })
           end
@@ -69,7 +71,7 @@ RSpec.describe Recommendation do
                                   merchant_id: merchant_id,
                                   user_id: user_id,
                                   card_number: '434505******9116',
-                                  date: 40.minutes.ago,
+                                  date: date - 40.minutes,
                                   amount: 999.99,
                                   device_id: device_id })
           end
@@ -87,7 +89,7 @@ RSpec.describe Recommendation do
                                   merchant_id: new_merchant_id,
                                   user_id: user_id,
                                   card_number: '434505******9116',
-                                  date: 2.hours.ago,
+                                  date: date - 2.hours,
                                   amount: 374.56,
                                   device_id: device_id })
           end
@@ -105,7 +107,7 @@ RSpec.describe Recommendation do
                                   merchant_id: merchant_id,
                                   user_id: user_id,
                                   card_number: '434505******9116',
-                                  date: 30.minutes.ago,
+                                  date: date - 30.minutes,
                                   amount: 43.13,
                                   device_id: new_device_id })
           end
@@ -122,7 +124,7 @@ RSpec.describe Recommendation do
                                 merchant_id: merchant_id,
                                 user_id: user_id,
                                 card_number: '434505******9116',
-                                date: 3.hours.ago,
+                                date: date - 3.hours,
                                 amount: 4_999.99,
                                 device_id: device_id })
         end
@@ -134,14 +136,56 @@ RSpec.describe Recommendation do
     end
   end
 
-  context 'with invalid previous transactions' do
+  context 'when transaction should be denied' do
     let(:chargeback) { false }
     let(:transactions) { all_transactions }
+
+    context 'when card_number length is below 16 chars' do
+      let(:valid_attributes) do
+        {
+          id: 21_320_398,
+          merchant_id: merchant_id,
+          user_id: user_id,
+          card_number: '434505******916',
+          date: date,
+          amount: 374.56,
+          device_id: device_id
+        }
+      end
+
+      it 'returns invalid' do
+        error = 'The Card number length is invalid'
+
+        expect(subject).to_not be_valid
+        expect(subject.errors[:base]).to eq [error]
+      end
+    end
+
+    context 'when is night and amount is too high' do
+      let(:valid_attributes) do
+        {
+          id: 21_320_398,
+          merchant_id: merchant_id,
+          user_id: user_id,
+          card_number: '434505******9136',
+          date: Time.current.midnight,
+          amount: 974.56,
+          device_id: device_id
+        }
+      end
+
+      it 'returns invalid' do
+        error = 'The amount is too high for night'
+
+        expect(subject).to_not be_valid
+        expect(subject.errors[:base]).to eq [error]
+      end
+    end
 
     context 'when there are transaction in the last hour' do
       context 'when there is another transaction with same value in last hour' do
         let!(:same_value_transaction) do
-          Transaction.create!(valid_attributes.merge(id: 21_320_222))
+          Transaction.create!(valid_attributes.merge(id: 21_320_222, date: date - 40.minutes))
         end
 
         it 'returns invalid' do
@@ -158,7 +202,7 @@ RSpec.describe Recommendation do
                                 merchant_id: merchant_id,
                                 user_id: user_id,
                                 card_number: '434505******9116',
-                                date: 40.minutes.ago,
+                                date: date - 40.minutes,
                                 amount: 1_000,
                                 device_id: device_id })
         end
@@ -177,7 +221,7 @@ RSpec.describe Recommendation do
                                 merchant_id: merchant_id,
                                 user_id: user_id,
                                 card_number: '434505******9116',
-                                date: 30.minutes.ago,
+                                date: date - 30.minutes,
                                 amount: 1.56,
                                 device_id: device_id })
 
@@ -185,7 +229,7 @@ RSpec.describe Recommendation do
                                 merchant_id: merchant_id,
                                 user_id: user_id,
                                 card_number: '434505******9116',
-                                date: 40.minutes.ago,
+                                date: date - 40.minutes,
                                 amount: 21.56,
                                 device_id: device_id })
         end
@@ -206,7 +250,7 @@ RSpec.describe Recommendation do
                                 merchant_id: merchant_id,
                                 user_id: user_id,
                                 card_number: '434505******9116',
-                                date: 30.minutes.ago,
+                                date: date - 30.minutes,
                                 amount: 1.56,
                                 device_id: device_id_one })
 
@@ -216,7 +260,7 @@ RSpec.describe Recommendation do
                                 merchant_id: merchant_id,
                                 user_id: user_id,
                                 card_number: '434505******9116',
-                                date: 40.minutes.ago,
+                                date: date - 40.minutes,
                                 amount: 543.56,
                                 device_id: device_id_two })
         end

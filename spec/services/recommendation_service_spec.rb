@@ -11,13 +11,15 @@ RSpec.describe RecommendationService do
   let!(:merchant) { Merchant.create(id: merchant_id) }
   let!(:user) { User.create(id: user_id) }
 
+  let(:date) { DateTime.parse('2024-01-25 18:03:28.604436') }
+
   let(:valid_attributes) do
     {
       id: 21_320_398,
       merchant_id: merchant_id,
       user_id: user_id,
       card_number: '434505******9116',
-      date: 1.hour.ago,
+      date: date,
       amount: 374.56,
       device_id: device_id
     }
@@ -60,7 +62,7 @@ RSpec.describe RecommendationService do
                                   merchant_id: merchant_id,
                                   user_id: user_id,
                                   card_number: '434505******9116',
-                                  date: 40.minutes.ago,
+                                  date: date - 40.minutes,
                                   amount: 999.99,
                                   device_id: device_id })
           end
@@ -80,7 +82,7 @@ RSpec.describe RecommendationService do
                                   merchant_id: new_merchant_id,
                                   user_id: user_id,
                                   card_number: '434505******9116',
-                                  date: 2.hours.ago,
+                                  date: date - 2.hours,
                                   amount: 374.56,
                                   device_id: device_id })
           end
@@ -155,7 +157,7 @@ RSpec.describe RecommendationService do
                                 merchant_id: merchant_id,
                                 user_id: user_id,
                                 card_number: '434505******9116',
-                                date: 40.minutes.ago,
+                                date: date - 40.minutes,
                                 amount: 1_000,
                                 device_id: device_id })
         end
@@ -173,7 +175,7 @@ RSpec.describe RecommendationService do
                                 merchant_id: merchant_id,
                                 user_id: user_id,
                                 card_number: '434505******9116',
-                                date: 30.minutes.ago,
+                                date: date - 30.minutes,
                                 amount: 374.56,
                                 device_id: device_id })
 
@@ -181,7 +183,7 @@ RSpec.describe RecommendationService do
                                 merchant_id: merchant_id,
                                 user_id: user_id,
                                 card_number: '434505******9116',
-                                date: 40.minutes.ago,
+                                date: date - 40.minutes,
                                 amount: 21.56,
                                 device_id: device_id })
         end
@@ -201,7 +203,7 @@ RSpec.describe RecommendationService do
                                 merchant_id: merchant_id,
                                 user_id: user_id,
                                 card_number: '434505******9116',
-                                date: 30.minutes.ago,
+                                date: date - 30.minutes,
                                 amount: 374.56,
                                 device_id: device_id_one })
 
@@ -211,7 +213,7 @@ RSpec.describe RecommendationService do
                                 merchant_id: merchant_id,
                                 user_id: user_id,
                                 card_number: '434505******9116',
-                                date: 40.minutes.ago,
+                                date: date - 40.minutes,
                                 amount: 374.56,
                                 device_id: device_id_two })
         end
@@ -254,7 +256,7 @@ RSpec.describe RecommendationService do
                               merchant_id: merchant_id,
                               user_id: user_id,
                               card_number: '434505******9116',
-                              date: 3.hours.ago,
+                              date: date - 3.hours,
                               amount: 5_000,
                               device_id: device_id })
       end

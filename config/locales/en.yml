@@ -43,3 +43,5 @@ en:
               one_hour_limit: The transaction is over the User's one hour limit amount
               same_device_multiple_times: The User did too many transactions on this device in the last hour
               too_many_devices: The User did too many transactions on multiple devices in the last hour
+              invalid_card_number: The Card number length is invalid
+              high_amount_night: The amount is too high for night
