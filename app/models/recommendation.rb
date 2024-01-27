@@ -2,15 +2,18 @@
 
 class Recommendation
   DENY = 'deny'
+  CARD_NUMBER_LENGTH = 16
   ONE_HOUR_MAX_LIMIT = 1_000
   FIVE_HOUR_MAX_LIMIT = 5_000
   MAX_DEVICES_IN_ONE_HOUR = 2
   MAX_TRANSACTIONS_SAME_DEVICE = 2
+  NIGHT_LIMIT = 500
 
   include ActiveModel::Validations
 
   attr_reader :transaction
 
+  validate :check_card_number_length
   validate :previous_chargeback
   validate :no_denied_transactions
   validate :five_hours_amount_limit
@@ -18,6 +21,7 @@ class Recommendation
   validate :same_amount_last_hour
   validate :too_many_devices
   validate :same_device_multiple_times
+  validate :night_high_amount
 
   def initialize(transaction:, transactions:, chargeback:)
     @transaction = transaction
@@ -29,6 +33,12 @@ class Recommendation
 
   attr_reader :chargeback, :transactions
 
+  def check_card_number_length
+    return if transaction.card_number.length == CARD_NUMBER_LENGTH
+
+    errors.add(:base, :invalid_card_number)
+  end
+
   def previous_chargeback
     return unless chargeback
 
@@ -36,7 +46,8 @@ class Recommendation
   end
 
   def last_hour_transactions
-    @last_hour_transactions ||= transactions.where(date: 90.minutes.ago..Time.current)
+    range = transaction.date - 90.minutes..transaction.date + 5.minutes
+    @last_hour_transactions ||= transactions.where(date: range)
   end
 
   def no_denied_transactions
@@ -74,5 +85,13 @@ class Recommendation
                   .where(device_id: @transaction.device_id).count >= MAX_TRANSACTIONS_SAME_DEVICE
 
     errors.add(:base, :same_device_multiple_times)
+  end
+
+  def night_high_amount
+    return if @transaction.date.hour < 22 && @transaction.date.hour > 6 && @transaction.amount
+
+    return if @transaction.amount < NIGHT_LIMIT
+
+    errors.add(:base, :high_amount_night)
   end
 end

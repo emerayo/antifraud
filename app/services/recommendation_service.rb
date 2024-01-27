@@ -21,8 +21,9 @@ class RecommendationService
   end
 
   def transactions
-    @transactions ||= Transaction.where(user_id: @transaction.user_id,
-                                        date: 5.hours.ago..Time.current)
+    @transactions ||= Transaction
+                      .where(user_id: @transaction.user_id,
+                             date: @transaction.date - 5.hours..@transaction.date + 5.minutes)
   end
 
   def any_chargeback?
