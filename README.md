@@ -1,5 +1,7 @@
 # Real State
 
+Explanation and answers for the challenge are found in [QUESTIONS.md](./QUESTIONS.md).
+
 ## System dependencies
 
 * PostgreSQL 14.0+
