@@ -62,3 +62,58 @@ $ overcommit --install
 ```
 
 Now you can commit.
+
+## API
+
+The examples are using the credentials from the ENVs.
+
+This API contains three endpoints:
+
+### GET api/v1/transactions/:id
+
+Renders the Transaction ID and the recommendation
+
+Running with cURL:
+
+```shell
+curl -X GET http://localhost:3000/api/v1/transactions/21323596 -u "antifraud_admin:strong_password"
+```
+
+Example response:
+
+```shell
+{ "id": 21323596, "recommendation": "approve" }
+```
+
+### PATCH api/v1/transactions/:id/chargeback
+
+Changes the flag `has_cbk` to `true` in the Transaction
+
+Running with cURL:
+
+```shell
+curl -X PATCH http://localhost:3000/api/v1/transactions/21323596/chargeback -u "antifraud_admin:strong_password"
+```
+Example response:
+
+```shell
+{ "has_cbk": true, "id":21323596, "recommendation": "approve" }
+```
+
+### POST api/v1/transactions/
+
+Creates the Transaction and returns the recommendation
+
+Running with cURL:
+
+```shell
+curl -X POST http://localhost:3000/api/v1/transactions
+-u "antifraud_admin:strong_password"
+-H "Content-Type: application/json"
+-d '{"id": 2323, "merchant_id": 29744, "user_id": 97051, "card_number": "434505******9116", "date": "2019-12-01T23:16:32.812632", "amount": 374.56, "device_id": 285475 }'
+```
+Example response:
+
+```shell
+{ "id": 2323, "recommendation": "deny" }
+```
