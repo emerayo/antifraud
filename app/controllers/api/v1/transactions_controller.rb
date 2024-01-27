@@ -27,7 +27,7 @@ module Api
         @transaction.has_cbk = true
 
         if @transaction.save
-          render json: @transaction
+          render json: @transaction.to_json(only: %i[id has_cbk recommendation])
         else
           render json: { errors: @transaction.errors }, status: :unprocessable_entity
         end
