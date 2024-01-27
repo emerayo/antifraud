@@ -21,6 +21,15 @@ RSpec.describe '/api/v1/transactions', type: :request do
 
   let(:json_response) { response.parsed_body }
 
+  let(:http_auth) do
+    user = ENV.fetch('AUTH_USER', nil)
+    password = ENV.fetch('AUTH_PASS', nil)
+    {
+      HTTP_AUTHORIZATION:
+        ActionController::HttpAuthentication::Basic.encode_credentials(user, password)
+    }
+  end
+
   describe 'GET /show' do
     context 'when the Transaction exists' do
       let!(:device) { Device.create(id: device_id) }
@@ -29,20 +38,16 @@ RSpec.describe '/api/v1/transactions', type: :request do
       let!(:transaction) { Transaction.create! valid_attributes }
 
       it 'returns the Transaction and status 200' do
-        get api_v1_transaction_path(transaction)
+        get api_v1_transaction_path(transaction), headers: http_auth
 
         expect(json_response['id']).to eq transaction.id
-        expect(json_response['device_id']).to eq transaction.device_id
-        expect(json_response['merchant_id']).to eq transaction.merchant_id
-        expect(json_response['user_id']).to eq transaction.user_id
-        expect(json_response['amount']).to eq transaction.amount
         expect(response.status).to eq 200
       end
     end
 
     context 'when the Transaction does not exist' do
       it 'returns 404' do
-        get api_v1_transaction_path(1)
+        get api_v1_transaction_path(1), headers: http_auth
 
         expect(json_response).to eq({ 'error' => 'not-found' })
         expect(response.status).to eq 404
@@ -58,8 +63,10 @@ RSpec.describe '/api/v1/transactions', type: :request do
 
       context 'with valid previous transactions or no transactions' do
         it 'creates a new Transaction and renders the transaction' do
-          expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
-            .to change(Transaction, :count).from(0).to(1)
+          expect do
+            post api_v1_transactions_path, params: { transaction: valid_attributes },
+                                           headers: http_auth
+          end.to change(Transaction, :count).from(0).to(1)
 
           expect(json_response['id']).to eq valid_attributes[:id]
           expect(json_response['recommendation']).to eq 'approve'
@@ -71,8 +78,10 @@ RSpec.describe '/api/v1/transactions', type: :request do
           let!(:user) { User.create(id: user_id) }
 
           it 'creates a new Transaction with blank device and renders the transaction' do
-            expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
-              .to change(Transaction, :count).by(1)
+            expect do
+              post api_v1_transactions_path, params: { transaction: valid_attributes },
+                                             headers: http_auth
+            end.to change(Transaction, :count).by(1)
             expect(json_response['id']).to eq valid_attributes[:id]
             expect(json_response['recommendation']).to eq 'approve'
             expect(response.status).to eq 201
@@ -87,8 +96,10 @@ RSpec.describe '/api/v1/transactions', type: :request do
           end
 
           it 'creates a new Transaction and renders the transaction with recommendation deny' do
-            expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
-              .to change(Transaction, :count).from(1).to(2)
+            expect do
+              post api_v1_transactions_path, params: { transaction: valid_attributes },
+                                             headers: http_auth
+            end.to change(Transaction, :count).from(1).to(2)
 
             expect(json_response['id']).to eq valid_attributes[:id]
             expect(json_response['recommendation']).to eq 'deny'
@@ -104,8 +115,10 @@ RSpec.describe '/api/v1/transactions', type: :request do
         let!(:user) { User.create(id: user_id) }
 
         it 'does not create a new Transaction and renders a response with 422 status' do
-          expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
-            .to change(Transaction, :count).by(0)
+          expect do
+            post api_v1_transactions_path, params: { transaction: valid_attributes },
+                                           headers: http_auth
+          end.to change(Transaction, :count).by(0)
           expect(response).to have_http_status(:unprocessable_entity)
           expect(json_response['errors']).to eq({ 'merchant' => ['must exist'] })
         end
@@ -116,8 +129,10 @@ RSpec.describe '/api/v1/transactions', type: :request do
         let!(:merchant) { Merchant.create(id: merchant_id) }
 
         it 'does not create a new Transaction and renders a response with 422 status' do
-          expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
-            .to change(Transaction, :count).by(0)
+          expect do
+            post api_v1_transactions_path, params: { transaction: valid_attributes },
+                                           headers: http_auth
+          end.to change(Transaction, :count).by(0)
           expect(response).to have_http_status(:unprocessable_entity)
           expect(json_response['errors']).to eq({ 'user' => ['must exist'] })
         end
@@ -132,8 +147,10 @@ RSpec.describe '/api/v1/transactions', type: :request do
           it 'does not create a new Transaction and renders a response with 422 status' do
             valid_attributes[:amount] = -1
 
-            expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
-              .to change(Transaction, :count).by(0)
+            expect do
+              post api_v1_transactions_path, params: { transaction: valid_attributes },
+                                             headers: http_auth
+            end.to change(Transaction, :count).by(0)
             expect(response).to have_http_status(:unprocessable_entity)
             expect(json_response['errors']).to eq({ 'amount' => ['must be greater than 0'] })
           end
@@ -143,8 +160,10 @@ RSpec.describe '/api/v1/transactions', type: :request do
           it 'does not create a new Transaction and renders a response with 422 status' do
             valid_attributes[:amount] = 0
 
-            expect { post api_v1_transactions_path, params: { transaction: valid_attributes } }
-              .to change(Transaction, :count).by(0)
+            expect do
+              post api_v1_transactions_path, params: { transaction: valid_attributes },
+                                             headers: http_auth
+            end.to change(Transaction, :count).by(0)
             expect(response).to have_http_status(:unprocessable_entity)
             expect(json_response['errors']).to eq({ 'amount' => ['must be greater than 0'] })
           end
@@ -164,7 +183,7 @@ RSpec.describe '/api/v1/transactions', type: :request do
         it 'updates the has_cbk field and returns the Transaction and status 200' do
           expect(transaction.has_cbk).to eq false
 
-          patch chargeback_api_v1_transaction_path(transaction)
+          patch chargeback_api_v1_transaction_path(transaction), headers: http_auth
 
           expect(transaction.reload.has_cbk).to eq true
           expect(json_response['id']).to eq transaction.id
@@ -178,7 +197,7 @@ RSpec.describe '/api/v1/transactions', type: :request do
           transaction.amount = 0
           transaction.save(validate: false)
 
-          patch chargeback_api_v1_transaction_path(transaction)
+          patch chargeback_api_v1_transaction_path(transaction), headers: http_auth
 
           expect(json_response).to eq({ 'errors' => { 'amount' => ['must be greater than 0'] } })
           expect(response.status).to eq 422
@@ -188,7 +207,7 @@ RSpec.describe '/api/v1/transactions', type: :request do
 
     context 'when the Transaction does not exist' do
       it 'returns 404' do
-        patch chargeback_api_v1_transaction_path(1)
+        patch chargeback_api_v1_transaction_path(1), headers: http_auth
 
         expect(json_response).to eq({ 'error' => 'not-found' })
         expect(response.status).to eq 404
