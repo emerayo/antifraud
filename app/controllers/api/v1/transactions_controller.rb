@@ -7,7 +7,7 @@ module Api
 
       # GET /transactions/:id
       def show
-        render json: @transaction
+        render json: @transaction.to_json(only: %i[id recommendation])
       end
 
       # POST /transactions
