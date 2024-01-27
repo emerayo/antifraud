@@ -3,10 +3,51 @@
 
 ### 3.1.1 Explain the money flow and the information flow in the acquirer market and the role of the main players.
 
+#### Money Flow:
+Customer -> Merchant -> Acquirer -> Card Network -> Issuing Bank -> Acquirer -> Merchant
+
+Customer sends the information when making a purchase,
+then the Merchant sends the information to the Acquirer to process the payment.
+The Acquirer then forwards the information to the Card Network(Visa, Mastercard, etc)
+The Card Network then acts as an intermediary between the Acquirer and the Issuing Bank, which holds the customer's account.
+The Issuing Bank analyzes the transaction for approval or denial and respond to the Acquirer via the Card Network.
+The final step is the communication from the Acquirer to the Merchant, if the transaction was approved,
+the funds are transferred from the customer's account to the merchant's account.
+
+#### Information Flow:
+
+Customer -> Merchant -> Acquirer -> Card Network -> Issuing Bank -> Acquirer -> Merchant
+
+The Customer sends it's card information to the Merchant.
+The Merchant send this information along with the amount to the Acquirer.
+The Acquirer send this information along with the information regarding the Issuing Bank to the Card Network.
+The Card Network send the transaction details to the Issuing Bank for approval or denial.
+The Issuing Bank then returns to the Acquirer the information via the Card Network,
+including information regarding the approval and additional information.
+The Acquirer then communicates back to the Merchant about the authorization or decline of the transaction.
+If the transaction is declined, the Merchant is told to not proceed with the sale.
+
 ### 3.1.2 Explain the difference between acquirer, sub-acquirer and payment gateway and how the flow explained in question 1 changes for these players.
+
+Acquirer is process the payments, it processes credit or debit card payments on behalf of the merchant.
+
+Sub-acquirer is a kind of intermediary player between the acquirer and the merchant.
+It's role is similar to the Acquirer but it doesn't have the autonomy to perform all functionalities of an Acquirer.
+
+Payment gateway is the system that sends data from the checkout at the Merchant to Acquirer, Card Brands and Issuing Banks.
 
 ### 3.1.3 Explain what chargebacks are, how they differ from cancellations and what is their connection with fraud in the acquiring world.
 
+Chargeback is when a customer disputes the transaction and the funds return to the customer's card account.
+Credit card chargeback is considered a consumer protection.
+
+Cancellation is done in a friendly way between the customer and the merchant.
+
+Usually the customer does a chargeback after trying to Cancel in a friendly way with the merchant
+but the merchant refuses the cancellation.
+
+Anti-fraud is a system that analyzes in an attempt to identify fraudulent transactions.
+It analyzes behavior of users and with a series of rules and patterns defines if it's valid or fraudulent  transaction.
 
 ## 3.2 Get your hands dirty
 
